@@ -17,4 +17,11 @@ class BatteryStatusTest {
         assertEquals("USB", batteryPowerSourceLabel(BatteryManager.BATTERY_PLUGGED_USB))
         assertEquals("AC / USB", batteryPowerSourceLabel(BatteryManager.BATTERY_PLUGGED_AC or BatteryManager.BATTERY_PLUGGED_USB))
     }
+    @Test fun uptimeFormatsWithoutClockDependence() {
+        assertEquals("0h 0m", formatUptime(0L))
+        assertEquals("0h 1m", formatUptime(90_000L))
+        assertEquals("1h 0m", formatUptime(3_600_000L))
+        assertEquals("1d 0h 0m", formatUptime(86_400_000L))
+        assertEquals("2d 3h 4m", formatUptime(((2 * 24 + 3) * 60 + 4) * 60_000L))
+    }
 }

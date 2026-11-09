@@ -46,6 +46,14 @@ fun batteryPowerSourceLabel(plugged: Int): String {
     return sources.joinToString(" / ").ifEmpty { "Other" }
 }
 
+fun formatUptime(millis: Long): String {
+    val totalMinutes = (millis.coerceAtLeast(0L) / 60_000L).coerceAtMost(999_999L)
+    val days = totalMinutes / 1_440L
+    val hours = (totalMinutes % 1_440L) / 60L
+    val minutes = totalMinutes % 60L
+    return if (days > 0) "${days}d ${hours}h ${minutes}m" else "${hours}h ${minutes}m"
+}
+
 fun monitorReport(context: Context): String {
     val memory = ActivityManager.MemoryInfo()
     context.getSystemService(ActivityManager::class.java).getMemoryInfo(memory)
@@ -61,6 +69,7 @@ fun monitorReport(context: Context): String {
         Device: ${Build.MANUFACTURER} ${Build.MODEL}
         Android: ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})
         CPU cores available to app: ${Runtime.getRuntime().availableProcessors()}
+        Device uptime: ${formatUptime(android.os.SystemClock.elapsedRealtime())}
 
         System memory total: ${bytes(memory.totalMem)}
         System memory available: ${bytes(memory.availMem)}
