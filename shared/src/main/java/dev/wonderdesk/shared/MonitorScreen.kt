@@ -26,6 +26,26 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
+fun batteryStatusLabel(status: Int): String = when (status) {
+    BatteryManager.BATTERY_STATUS_CHARGING -> "Charging"
+    BatteryManager.BATTERY_STATUS_DISCHARGING -> "Discharging"
+    BatteryManager.BATTERY_STATUS_NOT_CHARGING -> "Not charging"
+    BatteryManager.BATTERY_STATUS_FULL -> "Full"
+    else -> "Unavailable"
+}
+
+fun batteryPowerSourceLabel(plugged: Int): String {
+    if (plugged < 0) return "Unavailable"
+    if (plugged == 0) return "Not plugged in"
+    val sources = listOf(
+        BatteryManager.BATTERY_PLUGGED_AC to "AC",
+        BatteryManager.BATTERY_PLUGGED_USB to "USB",
+        BatteryManager.BATTERY_PLUGGED_WIRELESS to "Wireless",
+        BatteryManager.BATTERY_PLUGGED_DOCK to "Dock"
+    ).filter { (flag, _) -> plugged and flag != 0 }.map { it.second }
+    return sources.joinToString(" / ").ifEmpty { "Other" }
+}
+
 fun monitorReport(context: Context): String {
     val memory = ActivityManager.MemoryInfo()
     context.getSystemService(ActivityManager::class.java).getMemoryInfo(memory)
@@ -34,6 +54,8 @@ fun monitorReport(context: Context): String {
     val level = battery?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
     val scale = battery?.getIntExtra(BatteryManager.EXTRA_SCALE, -1) ?: -1
     val temperature = battery?.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, Int.MIN_VALUE) ?: Int.MIN_VALUE
+    val status = battery?.getIntExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_UNKNOWN) ?: BatteryManager.BATTERY_STATUS_UNKNOWN
+    val plugged = battery?.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1) ?: -1
     fun bytes(value: Long) = Formatter.formatFileSize(context, value)
     return """
         Device: ${Build.MANUFACTURER} ${Build.MODEL}
@@ -49,6 +71,8 @@ fun monitorReport(context: Context): String {
         App volume available: ${bytes(storage.availableBytes)}
 
         Battery: ${if (level >= 0 && scale > 0) "${level * 100 / scale}%" else "Unavailable"}
+        Battery status: ${batteryStatusLabel(status)}
+        Power source: ${batteryPowerSourceLabel(plugged)}
         Battery temperature: ${if (temperature != Int.MIN_VALUE) "${temperature / 10.0} °C (reported by Android)" else "Unavailable"}
 
         CPU/GPU utilization and temperature: unavailable in this build.
