@@ -1,6 +1,6 @@
 # Pulse for Android
 
-Shows live information about your phone. By Rednave.
+Shows live information about your phone.
 
 ## Easiest install and updates
 
