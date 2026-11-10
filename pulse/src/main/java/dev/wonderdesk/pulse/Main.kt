@@ -322,9 +322,11 @@ private fun AppsTab() {
         apps = withContext(Dispatchers.IO) { Probe.appUsage(context, since) }
     }
     if (!access) {
+        var guide by remember { mutableStateOf(false) }
         EmptyState("See how you use your phone", "Pulse needs Android's usage access to show screen time per app and app sizes. It never leaves your phone.",
-            icon = WonderIcons.QueryStats, action = { WButton("Allow usage access", { context.launchSafely(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS, Uri.parse("package:${context.packageName}"))) {
-                context.launchSafely(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)) {} } }, kind = ButtonKind.Primary) })
+            icon = WonderIcons.QueryStats, action = { WButton("Turn on usage access", { guide = true }, kind = ButtonKind.Primary) })
+        if (guide) AccessGuide(SpecialAccess.Kind.USAGE, "Pulse reads how long each app was used today, this week and this month, and how much space each app takes. It stays on your phone.",
+            onDismiss = { guide = false }, onGranted = { access = true; tick++ })
         return
     }
     val list = apps
