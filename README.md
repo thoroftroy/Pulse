@@ -8,6 +8,7 @@ See what your phone is doing and what it's made of.
 - **Device**: detailed pages for system, processor, memory, battery (health, voltage, capacity, charge cycles where available), display, storage, network, sensors with live readings, cameras, media codecs and features.
 - **Apps** (with usage access): screen time per app today, this week or this month, app sizes, closing an app's background processes, and a shortcut to Force stop.
 - Save or share a full report.
+- A home-screen status widget with battery, memory and storage.
 - Android doesn't let apps force-stop other apps or read some processor counters. Pulse shows what Android allows and says when a reading isn't available.
 - Turning on usage access is guided, including Android's "restricted setting" step.
 

@@ -339,7 +339,7 @@ private fun AppsTab() {
             item { Text("Screen time ${dur(total)}", style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold), modifier = Modifier.padding(start = 6.dp, bottom = 12.dp)) }
             itemsIndexed(list, key = { _, a -> a.pkg }) { i, a ->
                 var menu by remember { mutableStateOf(false) }
-                val icon = remember(a.pkg) { runCatching { context.packageManager.getApplicationIcon(a.pkg).toBitmap(96, 96).asImageBitmap() }.getOrNull() }
+                val icon = remember(a.pkg) { context.suiteArt(a.pkg, 96) }
                 Box {
                     Column(Modifier.panelItem(i, list.size).clickable { menu = true }.padding(horizontal = 12.dp, vertical = 10.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
