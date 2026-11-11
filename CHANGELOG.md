@@ -1,5 +1,13 @@
 # Pulse changelog
 
+## v0.5.0
+
+- Status widget settings: choose battery, memory and storage rows, the title, and the background
+- Fixed the Apps list crashing on phones that report an app twice
+- Works properly in landscape: tabs move to a rail at the side so the content keeps its height, and screens that ran out of room now scroll
+- If the app ever crashes it says so next time it opens and offers to send a report (only the error, app version and phone model, with file names and links removed). Turn on automatic sending in Control Room › Wonderdesk
+- Lists can no longer crash when two items share a name
+
 ## v0.4.0
 
 - New Status widget with battery, memory and storage at a glance

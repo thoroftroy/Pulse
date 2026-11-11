@@ -337,7 +337,7 @@ private fun AppsTab() {
         val top = list.maxOfOrNull { it.foregroundMs } ?: 1
         LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp)) {
             item { Text("Screen time ${dur(total)}", style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold), modifier = Modifier.padding(start = 6.dp, bottom = 12.dp)) }
-            itemsIndexed(list, key = { _, a -> a.pkg }) { i, a ->
+            itemsIndexed(list, key = { j, a -> "${a.pkg}#$j" }) { i, a ->
                 var menu by remember { mutableStateOf(false) }
                 val icon = remember(a.pkg) { context.suiteArt(a.pkg, 96) }
                 Box {
