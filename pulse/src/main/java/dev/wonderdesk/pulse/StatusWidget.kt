@@ -22,9 +22,10 @@ class StatusWidget : AppWidgetProvider() {
     companion object {
         fun refresh(c: Context) { val mgr = AppWidgetManager.getInstance(c); mgr.getAppWidgetIds(ComponentName(c, StatusWidget::class.java)).forEach { runCatching { mgr.updateAppWidget(it, build(c, it)) } } }
 
-        fun build(c: Context, id: Int): RemoteViews {
+        fun build(c: Context, id: Int): RemoteViews = dev.wonderdesk.shared.responsiveWidget(R.layout.widget_status_small, null, R.layout.widget_status) { fill(c, id, it) }
+        private fun fill(c: Context, id: Int, layout: Int): RemoteViews {
             val s = WidgetPrefs(c, id)
-            val v = RemoteViews(c.packageName, R.layout.widget_status)
+            val v = RemoteViews(c.packageName, layout)
             val look = runCatching { WidgetLook.valueOf(s.str("look", "GLASS")) }.getOrDefault(WidgetLook.GLASS)
             v.applyLook(look, R.id.w_root, Triple(R.drawable.wd_widget_bg, R.drawable.wd_widget_bg_dark, R.drawable.wd_widget_bg_clear),
                 listOf(R.id.w_head, R.id.w_bat_l, R.id.w_mem_l, R.id.w_sto_l), listOf(R.id.w_bat_t, R.id.w_mem_t, R.id.w_sto_t))
@@ -43,6 +44,13 @@ class StatusWidget : AppWidgetProvider() {
             listOf("bat" to R.id.w_bat_row, "mem" to R.id.w_mem_row, "sto" to R.id.w_sto_row).forEach { (k, row) -> v.setViewVisibility(row, if (s.bool(k, true)) View.VISIBLE else View.GONE) }
             v.setOnClickPendingIntent(R.id.w_root, PendingIntent.getActivity(c, 41, Intent(c, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), PendingIntent.FLAG_IMMUTABLE))
             v.setOnClickPendingIntent(R.id.w_head, PendingIntent.getBroadcast(c, 4200 + id % 1000, Intent(c, StatusWidget::class.java).setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE).putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, intArrayOf(id)), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
+            if (layout != R.layout.widget_status) {
+                v.setViewVisibility(R.id.w_head, View.GONE)
+                // Short values so nothing collides in a 1×1 square.
+                v.setTextViewText(R.id.w_bat_t, "$pct%")
+                v.setTextViewText(R.id.w_mem_t, "${usedMem * 100 / m.totalMem.coerceAtLeast(1)}%")
+                v.setTextViewText(R.id.w_sto_t, "${used * 100 / st.totalBytes.coerceAtLeast(1)}%")
+            }
             return v
         }
     }
