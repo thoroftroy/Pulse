@@ -1,5 +1,9 @@
 # Pulse changelog
 
+## v0.5.4
+
+- Fixes from a full round of stress testing on every screen
+
 ## v0.5.3
 
 - New Tests tab: check the screen for dead pixels, touch and multi-touch, vibration, speaker and flashlight
