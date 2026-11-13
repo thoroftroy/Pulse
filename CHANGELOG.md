@@ -1,5 +1,12 @@
 # Pulse changelog
 
+## v0.5.3
+
+- New Tests tab: check the screen for dead pixels, touch and multi-touch, vibration, speaker and flashlight
+- Tap the tab you're already on to glide back to the top of its list
+- Switches Android greys out as a “Restricted setting” are now explained: the guide walks you through unlocking them in three clear steps, and keeps showing them until the switch is really on (before, on Android 15 and newer it could hide the only hint)
+- Nothing required stays hidden: if Android is blocking something the app needs, a slim banner says what and takes you straight to the switch, and Settings › Permissions and access lists everything with its state
+
 ## v0.5.2
 
 - Smoother everywhere: new screens, tabs and Settings ease in instead of snapping, and buttons, tabs, chips and switches give a light tap you can feel (following your phone's touch-feedback setting)

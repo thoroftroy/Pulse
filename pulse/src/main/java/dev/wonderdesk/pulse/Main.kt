@@ -50,6 +50,11 @@ class MainActivity : WonderActivity() {
     @Composable override fun Content() = PulseApp()
 }
 
+/** What Android must allow for this app to work fully; shown as a banner when off and in Settings. */
+private val APP_NEEDS by lazy { listOf(
+    WonderNeed("Usage access", "Shows which apps you use most and lets you close their background work", required = false, access = SpecialAccess.Kind.USAGE),
+) }
+
 private const val ABOUT = "Pulse shows what your phone is doing right now and what it's made of: live graphs for processor, memory, battery and network, " +
     "and detailed pages for the device, display, sensors, cameras and media codecs. With usage access it also shows which apps you use most and can close their background processes."
 
@@ -87,9 +92,9 @@ fun PulseApp() {
     val exporter = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/plain")) { uri ->
         if (uri != null) runCatching { context.contentResolver.openOutputStream(uri, "wt")!!.use { it.write(report(context).toByteArray()) } }.onSuccess { toastRef.value("Report saved") }
     }
-    WonderApp(appName = "Pulse", about = ABOUT,
-        tabs = if (detail != null) emptyList() else listOf(WonderTab("live", "Live", WonderIcons.Speed), WonderTab("device", "Device", WonderIcons.PhoneAndroid), WonderTab("apps", "Apps", WonderIcons.Apps)),
-        selectedTab = tab, onTab = { tab = it }, title = detail ?: when (tab) { "device" -> "This device"; "apps" -> "Apps"; else -> "Pulse" },
+    WonderApp(needs = APP_NEEDS, appName = "Pulse", about = ABOUT,
+        tabs = if (detail != null) emptyList() else listOf(WonderTab("live", "Live", WonderIcons.Speed), WonderTab("device", "Device", WonderIcons.PhoneAndroid), WonderTab("apps", "Apps", WonderIcons.Apps), WonderTab("tests", "Tests", WonderIcons.CheckCircle)),
+        selectedTab = tab, onTab = { tab = it }, title = detail ?: when (tab) { "device" -> "This device"; "apps" -> "Apps"; "tests" -> "Hardware tests"; else -> "Pulse" },
         onBack = detail?.let { { detail = null } },
         menu = listOf(WonderMenuItem("Save full report", WonderIcons.Save) { exporter.launch("Pulse report ${Build_model()}.txt") },
             WonderMenuItem("Share report", WonderIcons.Share) { context.launchSafely(Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, report(context)), "Share report")) {} })) {
@@ -98,6 +103,7 @@ fun PulseApp() {
             detail != null -> Detail(detail!!, live)
             tab == "device" -> DeviceTab { detail = it }
             tab == "apps" -> AppsTab()
+            tab == "tests" -> TestsTab()
             else -> LiveTab(live) { detail = it }
         }
     }
@@ -244,7 +250,7 @@ private fun Detail(name: String, live: Live) {
         else -> emptyList()
     }
     if (name == "Sensors") { SensorsDetail(); return }
-    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp)) {
+    LazyColumn(Modifier.fillMaxSize(), state = rememberTabTopList(), contentPadding = PaddingValues(16.dp)) {
         when (name) {
             "Processor" -> item { LiveCard("Usage", live.cpu.values.lastOrNull()?.let { "${it.toInt()}%" } ?: "—", "Last 90 seconds", WonderIcons.DeveloperBoard, Color(0xFF1E7FE8), listOf(live.cpu to Color(0xFF1E7FE8)), 100f); Spacer(Modifier.height(16.dp)) }
             "Memory" -> item { LiveCard("Memory in use", "${live.mem.last.toInt()}%", "Last 90 seconds", WonderIcons.Memory, Color(0xFF8E44AD), listOf(live.mem to Color(0xFF8E44AD)), 100f); Spacer(Modifier.height(16.dp)) }
@@ -281,7 +287,7 @@ private fun SensorsDetail() {
         watching?.let { sm.registerListener(l, it, SensorManager.SENSOR_DELAY_UI) }
         onDispose { sm.unregisterListener(l) }
     }
-    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp)) {
+    LazyColumn(Modifier.fillMaxSize(), state = rememberTabTopList(), contentPadding = PaddingValues(16.dp)) {
         watching?.let { s ->
             item {
                 Panel(title = "Live: ${s.name}") {
@@ -335,7 +341,7 @@ private fun AppsTab() {
         if (list == null) { Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = p.accent) }; return@Column }
         val total = list.sumOf { it.foregroundMs }
         val top = list.maxOfOrNull { it.foregroundMs } ?: 1
-        LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp)) {
+        LazyColumn(Modifier.fillMaxSize(), state = rememberTabTopList(), contentPadding = PaddingValues(16.dp)) {
             item { Text("Screen time ${dur(total)}", style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold), modifier = Modifier.padding(start = 6.dp, bottom = 12.dp)) }
             itemsIndexed(list, key = { j, a -> "${a.pkg}#$j" }) { i, a ->
                 var menu by remember { mutableStateOf(false) }
