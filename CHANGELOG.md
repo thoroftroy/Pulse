@@ -1,5 +1,10 @@
 # Pulse changelog
 
+## v0.5.9
+
+- New History tab (opt-in): Pulse keeps a two-week battery and app history, sampled every half hour at almost no battery cost. See battery over the last 48 hours, how fast it drains per hour on battery, roughly how long is left, and which apps were on screen most while unplugged
+- Optional weekly anonymous summary to the Wonderdesk developer (device model, Android version, drain rate, temperature, top apps by screen time) to help make the apps lighter. “What's sent” shows the exact text first
+
 ## v0.5.8
 
 - Lighter on the battery: in the Super look the drifting sparkles settle after a few seconds without a touch (the next tap wakes them), so a screen you're reading no longer redraws 25 times a second

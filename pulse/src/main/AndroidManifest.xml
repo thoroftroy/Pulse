@@ -2,6 +2,8 @@
     <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" tools:ignore="QueryAllPackagesPermission" />
     <application android:enableOnBackInvokedCallback="true" android:label="Pulse">
@@ -10,5 +12,6 @@
         </activity>
             <receiver android:name=".StatusWidget" android:exported="true" android:label="Pulse status"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_status_info" /></receiver>
         <activity android:name=".StatusWidgetSetup" android:exported="true" android:label="Widget settings"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" /></intent-filter></activity>
+        <service android:name=".InsightsJob" android:exported="false" android:permission="android.permission.BIND_JOB_SERVICE" />
     </application>
 </manifest>

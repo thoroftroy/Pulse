@@ -93,8 +93,8 @@ fun PulseApp() {
         if (uri != null) runCatching { context.contentResolver.openOutputStream(uri, "wt")!!.use { it.write(report(context).toByteArray()) } }.onSuccess { toastRef.value("Report saved") }
     }
     WonderApp(needs = APP_NEEDS, appName = "Pulse", about = ABOUT,
-        tabs = if (detail != null) emptyList() else listOf(WonderTab("live", "Live", WonderIcons.Speed), WonderTab("device", "Device", WonderIcons.PhoneAndroid), WonderTab("apps", "Apps", WonderIcons.Apps), WonderTab("tests", "Tests", WonderIcons.CheckCircle)),
-        selectedTab = tab, onTab = { tab = it }, title = detail ?: when (tab) { "device" -> "This device"; "apps" -> "Apps"; "tests" -> "Hardware tests"; else -> "Pulse" },
+        tabs = if (detail != null) emptyList() else listOf(WonderTab("live", "Live", WonderIcons.Speed), WonderTab("device", "Device", WonderIcons.PhoneAndroid), WonderTab("apps", "Apps", WonderIcons.Apps), WonderTab("history", "History", WonderIcons.Insights), WonderTab("tests", "Tests", WonderIcons.CheckCircle)),
+        selectedTab = tab, onTab = { tab = it }, title = detail ?: when (tab) { "device" -> "This device"; "apps" -> "Apps"; "tests" -> "Hardware tests"; "history" -> "History"; else -> "Pulse" },
         onBack = detail?.let { { detail = null } },
         menu = listOf(WonderMenuItem("Save full report", WonderIcons.Save) { exporter.launch("Pulse report ${Build_model()}.txt") },
             WonderMenuItem("Share report", WonderIcons.Share) { context.launchSafely(Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, report(context)), "Share report")) {} })) {
@@ -104,6 +104,7 @@ fun PulseApp() {
             tab == "device" -> DeviceTab { detail = it }
             tab == "apps" -> AppsTab()
             tab == "tests" -> TestsTab()
+            tab == "history" -> HistoryTab()
             else -> LiveTab(live) { detail = it }
         }
     }
