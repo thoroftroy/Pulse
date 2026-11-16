@@ -1,5 +1,12 @@
 # Pulse changelog
 
+## v0.5.10
+
+- History tab: new “Send now” button sends the anonymous summary immediately instead of waiting for the weekly slot, with last-sent time shown
+- Three new opt-in diagnostics: device details (RAM, storage, display, CPU, connection type), installed Wonderdesk app versions, and per-app crash counts from the last 7 days (counts only, never details)
+- Samples now also record free RAM and free storage, so weekly averages include memory pressure and storage headroom
+- “What's sent” preview shows the full report exactly as it goes out, including any opt-in sections
+
 ## v0.5.9
 
 - New History tab (opt-in): Pulse keeps a two-week battery and app history, sampled every half hour at almost no battery cost. See battery over the last 48 hours, how fast it drains per hour on battery, roughly how long is left, and which apps were on screen most while unplugged
