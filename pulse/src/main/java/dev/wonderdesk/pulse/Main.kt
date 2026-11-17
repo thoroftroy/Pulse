@@ -339,7 +339,7 @@ private fun AppsTab() {
     val list = apps
     Column(Modifier.fillMaxSize()) {
         Segmented(listOf("Today", "7 days", "30 days"), range, Modifier.padding(16.dp, 12.dp, 16.dp, 4.dp)) { range = it }
-        if (list == null) { Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = p.accent) }; return@Column }
+        if (list == null) { LoadingPane("Working out app usage", detail = "Reading battery and screen time for each app"); return@Column }
         val total = list.sumOf { it.foregroundMs }
         val top = list.maxOfOrNull { it.foregroundMs } ?: 1
         LazyColumn(Modifier.fillMaxSize(), state = rememberTabTopList(), contentPadding = PaddingValues(16.dp)) {

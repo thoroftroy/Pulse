@@ -1,5 +1,10 @@
 # Pulse changelog
 
+## v0.5.11
+
+- Loading screens now say what they are doing instead of showing a bare spinner
+- Wording tidied so no sentence needs a dash
+
 ## v0.5.10
 
 - History tab: new “Send now” button sends the anonymous summary immediately instead of waiting for the weekly slot, with last-sent time shown
