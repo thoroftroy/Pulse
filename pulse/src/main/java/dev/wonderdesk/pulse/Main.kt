@@ -58,7 +58,13 @@ private val APP_NEEDS by lazy { listOf(
 private const val ABOUT = "Pulse shows what your phone is doing right now and what it's made of: live graphs for processor, memory, battery and network, " +
     "and detailed pages for the device, display, sensors, cameras and media codecs. With usage access it also shows which apps you use most and can close their background processes."
 
-/** Live readings, sampled every second while Pulse is open. */
+/** Battery temperature in the unit chosen in settings. */
+fun tempText(c: android.content.Context, celsius: Number): String {
+    val v = celsius.toDouble()
+    return if (c.getSharedPreferences("pulse", android.content.Context.MODE_PRIVATE).getBoolean("fahrenheit", false)) "%.1f °F".format(v * 9 / 5 + 32) else "%.1f °C".format(v)
+}
+
+/** Live readings, sampled every second (or as often as chosen in settings) while Pulse is open. */
 class Live {
     val cpu = Series(); val mem = Series(); val batteryMa = Series(); val temp = Series(); val down = Series(); val up = Series()
     var tick by mutableIntStateOf(0)
@@ -83,7 +89,7 @@ fun PulseApp() {
                 val (d, u) = Probe.network(); live.down.add(d); live.up.add(u)
             }
             live.tick++
-            delay(1000)
+            delay(context.getSharedPreferences("pulse", android.content.Context.MODE_PRIVATE).getInt("refreshMs", 1000).toLong())
         }
     }
     var tab by rememberSaveable { mutableStateOf("live") }
@@ -96,6 +102,18 @@ fun PulseApp() {
         tabs = if (detail != null) emptyList() else listOf(WonderTab("live", "Live", WonderIcons.Speed), WonderTab("device", "Device", WonderIcons.PhoneAndroid), WonderTab("apps", "Apps", WonderIcons.Apps), WonderTab("history", "History", WonderIcons.Insights), WonderTab("tests", "Tests", WonderIcons.CheckCircle)),
         selectedTab = tab, onTab = { tab = it }, title = detail ?: when (tab) { "device" -> "This device"; "apps" -> "Apps"; "tests" -> "Hardware tests"; "history" -> "History"; else -> "Pulse" },
         onBack = detail?.let { { detail = null } },
+        settings = {
+            val pp = remember { context.getSharedPreferences("pulse", android.content.Context.MODE_PRIVATE) }
+            Panel(title = "Live readings") {
+                var ms by remember { mutableIntStateOf(pp.getInt("refreshMs", 1000)) }
+                Column(Modifier.padding(16.dp, 10.dp)) { Text("Update every", style = MaterialTheme.typography.labelLarge)
+                    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) { listOf(500 to "0.5 s", 1000 to "1 s", 2000 to "2 s", 5000 to "5 s").forEach { (v, n) -> Chip(n, ms == v, { ms = v; pp.edit().putInt("refreshMs", v).apply() }) } }
+                    Text("Slower updates use less battery.", style = MaterialTheme.typography.bodySmall, color = wonderPalette().secondaryText) }
+                PanelDivider()
+                var f by remember { mutableStateOf(pp.getBoolean("fahrenheit", false)) }
+                SwitchRow("Show temperatures in Fahrenheit", f, { f = it; pp.edit().putBoolean("fahrenheit", it).apply() }, icon = WonderIcons.Speed, tint = Color(0xFFE5483C))
+            }
+        },
         menu = listOf(WonderMenuItem("Save full report", WonderIcons.Save) { exporter.launch("Pulse report ${Build_model()}.txt") },
             WonderMenuItem("Share report", WonderIcons.Share) { context.launchSafely(Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, report(context)), "Share report")) {} })) {
         toastRef.value = LocalToast.current
@@ -171,7 +189,7 @@ private fun LiveTab(live: Live, open: (String) -> Unit) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             LiveCard("Memory", "${live.mem.last.toInt()}%", "${formatBytes(mem.totalMem - mem.availMem)} of ${formatBytes(mem.totalMem)}", WonderIcons.Memory, Color(0xFF8E44AD),
                 listOf(live.mem to Color(0xFF8E44AD)), max = 100f, modifier = Modifier.weight(1f), onClick = { open("Memory") })
-            LiveCard("Battery", "${bat.level}%", bat.currentMa?.let { "${if (it > 0) "+" else ""}$it mA · ${bat.tempC}°C" } ?: "${bat.status} · ${bat.tempC}°C",
+            LiveCard("Battery", "${bat.level}%", bat.currentMa?.let { "${if (it > 0) "+" else ""}$it mA · ${tempText(context, bat.tempC)}" } ?: "${bat.status} · ${tempText(context, bat.tempC)}",
                 if (bat.status == "Charging") WonderIcons.BatteryChargingFull else WonderIcons.BatteryFull, Color(0xFF2E9E44), listOf(live.temp to Color(0xFFE67E22)), min = 15f,
                 modifier = Modifier.weight(1f), onClick = { open("Battery") })
         }
@@ -240,7 +258,7 @@ private fun Detail(name: String, live: Live) {
             "Low-memory threshold" to formatBytes(m.threshold), "Low on memory now" to if (m.lowMemory) "Yes" else "No",
             "Pulse itself" to formatBytes(android.os.Debug.getPss() * 1024)) }
         "Battery" -> Probe.battery(context).let { b -> listOfNotNull("Level" to "${b.level}%", "Status" to b.status, "Power source" to b.plugged, "Health" to b.health, "Technology" to b.tech,
-            "Temperature" to "${b.tempC} °C", "Voltage" to "${b.voltageMv} mV", b.currentMa?.let { "Current" to "$it mA" }, b.chargeMah?.let { "Charge left" to "$it mAh" },
+            "Temperature" to tempText(context, b.tempC), "Voltage" to "${b.voltageMv} mV", b.currentMa?.let { "Current" to "$it mA" }, b.chargeMah?.let { "Charge left" to "$it mAh" },
             b.capacityMah?.let { "Estimated capacity" to "$it mAh" }, b.cycles?.let { "Charge cycles" to "$it" }) }
         "Display" -> Probe.display(context)
         "Storage" -> Probe.storage(context).flatMap { (n, total, free) -> listOf(n to "${formatBytes(total - free)} used of ${formatBytes(total)} · ${formatBytes(free)} free") }

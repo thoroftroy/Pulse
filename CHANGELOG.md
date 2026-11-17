@@ -1,5 +1,11 @@
 # Pulse changelog
 
+## v0.5.12
+
+- New settings: how often the live readings update, and Fahrenheit for temperatures
+- Text size and accent colour chosen in Control Room now apply here
+- New Rotate with the phone switch in Settings
+
 ## v0.5.11
 
 - Loading screens now say what they are doing instead of showing a bare spinner
