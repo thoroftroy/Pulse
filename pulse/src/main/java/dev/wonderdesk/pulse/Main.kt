@@ -90,6 +90,7 @@ fun PulseApp() {
                 val b = Probe.battery(context); b.currentMa?.let { live.batteryMa.add(it.toFloat()) }; live.temp.add(b.tempC)
                 val (d, u) = Probe.network(); live.down.add(d); live.up.add(u)
             }
+            run { val cap = context.getSharedPreferences("pulse", android.content.Context.MODE_PRIVATE).getInt("graphLen", 90); listOf(live.cpu, live.mem, live.batteryMa, live.temp, live.down, live.up).forEach { it.capacity = cap } }
             live.tick++
             delay(context.getSharedPreferences("pulse", android.content.Context.MODE_PRIVATE).getInt("refreshMs", 1000).toLong())
         }
@@ -111,6 +112,10 @@ fun PulseApp() {
                 Column(Modifier.padding(16.dp, 10.dp)) { Text("Update every", style = MaterialTheme.typography.labelLarge)
                     Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) { listOf(500 to "0.5 s", 1000 to "1 s", 2000 to "2 s", 5000 to "5 s").forEach { (v, n) -> Chip(n, ms == v, { ms = v; pp.edit().putInt("refreshMs", v).apply() }) } }
                     Text("Slower updates use less battery.", style = MaterialTheme.typography.bodySmall, color = wonderPalette().secondaryText) }
+                PanelDivider()
+                var gl by remember { mutableIntStateOf(pp.getInt("graphLen", 90)) }
+                Column(Modifier.padding(16.dp, 10.dp)) { Text("Graphs keep the last", style = MaterialTheme.typography.labelLarge)
+                    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) { listOf(30 to "30 readings", 90 to "90", 180 to "180", 360 to "360").forEach { (v, n) -> Chip(n, gl == v, { gl = v; pp.edit().putInt("graphLen", v).apply() }) } } }
                 PanelDivider()
                 var kA by remember { mutableStateOf(pp.getBoolean("keepAwake", false)) }
                 SwitchRow("Keep the screen on", kA, { kA = it; pp.edit().putBoolean("keepAwake", it).apply() }, subtitle = "Handy for watching readings while a test runs", icon = WonderIcons.Visibility, tint = Color(0xFF8E44AD))

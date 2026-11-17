@@ -1,5 +1,9 @@
 # Pulse changelog
 
+## v0.5.14
+
+- New setting: how many readings the graphs keep
+
 ## v0.5.13
 
 - New setting: keep the screen on while watching readings

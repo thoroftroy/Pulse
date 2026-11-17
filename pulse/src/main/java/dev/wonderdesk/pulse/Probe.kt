@@ -28,7 +28,9 @@ import java.io.File
 import kotlin.math.sqrt
 
 /** Rolling history for charts. */
-class Series(val capacity: Int = 90) {
+class Series(capacity0: Int = 90) {
+    /** How many readings the graph keeps; set from Pulse settings. */
+    @Volatile var capacity = capacity0
     val values = ArrayDeque<Float>()
     fun add(v: Float) { values.addLast(v); while (values.size > capacity) values.removeFirst() }
     val last get() = values.lastOrNull() ?: 0f
