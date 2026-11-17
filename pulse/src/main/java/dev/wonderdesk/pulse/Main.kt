@@ -166,7 +166,7 @@ private fun LiveTab(live: Live, open: (String) -> Unit) {
     val cores = remember(t) { Probe.cores() }
     val storage = remember(t / 10) { Probe.storage(context) }
     Page {
-        LiveCard("Processor", live.cpu.values.lastOrNull()?.let { "${it.toInt()}%" } ?: "—", "${cores.size} cores · ${Probe.cpuName()}", WonderIcons.DeveloperBoard, Color(0xFF1E7FE8),
+        LiveCard("Processor", live.cpu.values.lastOrNull()?.let { "${it.toInt()}%" } ?: "n/a", "${cores.size} cores · ${Probe.cpuName()}", WonderIcons.DeveloperBoard, Color(0xFF1E7FE8),
             listOf(live.cpu to Color(0xFF1E7FE8)), max = 100f, onClick = { open("Processor") })
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             LiveCard("Memory", "${live.mem.last.toInt()}%", "${formatBytes(mem.totalMem - mem.availMem)} of ${formatBytes(mem.totalMem)}", WonderIcons.Memory, Color(0xFF8E44AD),
@@ -191,7 +191,7 @@ private fun LiveTab(live: Live, open: (String) -> Unit) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("CPU ${c.index}", Modifier.width(56.dp), style = MaterialTheme.typography.labelMedium)
                         AquaProgress(if (c.max > 0) (c.cur - c.min).toFloat() / (c.max - c.min).coerceAtLeast(1) else 0f, Modifier.weight(1f))
-                        Text(if (!c.online) "off" else if (c.cur > 0) "${c.cur / 1000} MHz" else "—", Modifier.width(84.dp).padding(start = 8.dp), style = MaterialTheme.typography.labelMedium, color = p.secondaryText)
+                        Text(if (!c.online) "off" else if (c.cur > 0) "${c.cur / 1000} MHz" else "n/a", Modifier.width(84.dp).padding(start = 8.dp), style = MaterialTheme.typography.labelMedium, color = p.secondaryText)
                     }
                 }
             }
@@ -235,7 +235,7 @@ private fun Detail(name: String, live: Live) {
         "System" -> Probe.system()
         "Processor" -> listOf("Chip" to Probe.cpuName(), "Cores" to "${Runtime.getRuntime().availableProcessors()}", "Architecture" to (System.getProperty("os.arch") ?: ""),
             "ABIs" to android.os.Build.SUPPORTED_ABIS.joinToString(", "), "Usage" to (live.cpu.values.lastOrNull()?.let { "${it.toInt()}%" } ?: "Not available")) +
-            Probe.cores().map { c -> "Core ${c.index}" to if (!c.online) "Offline" else "${c.cur / 1000} MHz (range ${c.min / 1000}–${c.max / 1000} MHz)${if (c.governor.isNotBlank()) " · ${c.governor}" else ""}" }
+            Probe.cores().map { c -> "Core ${c.index}" to if (!c.online) "Offline" else "${c.cur / 1000} MHz (range ${c.min / 1000} to ${c.max / 1000} MHz)${if (c.governor.isNotBlank()) " · ${c.governor}" else ""}" }
         "Memory" -> Probe.memory(context).let { m -> listOf("Total" to formatBytes(m.totalMem), "In use" to formatBytes(m.totalMem - m.availMem), "Available" to formatBytes(m.availMem),
             "Low-memory threshold" to formatBytes(m.threshold), "Low on memory now" to if (m.lowMemory) "Yes" else "No",
             "Pulse itself" to formatBytes(android.os.Debug.getPss() * 1024)) }
@@ -253,7 +253,7 @@ private fun Detail(name: String, live: Live) {
     if (name == "Sensors") { SensorsDetail(); return }
     LazyColumn(Modifier.fillMaxSize(), state = rememberTabTopList(), contentPadding = PaddingValues(16.dp)) {
         when (name) {
-            "Processor" -> item { LiveCard("Usage", live.cpu.values.lastOrNull()?.let { "${it.toInt()}%" } ?: "—", "Last 90 seconds", WonderIcons.DeveloperBoard, Color(0xFF1E7FE8), listOf(live.cpu to Color(0xFF1E7FE8)), 100f); Spacer(Modifier.height(16.dp)) }
+            "Processor" -> item { LiveCard("Usage", live.cpu.values.lastOrNull()?.let { "${it.toInt()}%" } ?: "n/a", "Last 90 seconds", WonderIcons.DeveloperBoard, Color(0xFF1E7FE8), listOf(live.cpu to Color(0xFF1E7FE8)), 100f); Spacer(Modifier.height(16.dp)) }
             "Memory" -> item { LiveCard("Memory in use", "${live.mem.last.toInt()}%", "Last 90 seconds", WonderIcons.Memory, Color(0xFF8E44AD), listOf(live.mem to Color(0xFF8E44AD)), 100f); Spacer(Modifier.height(16.dp)) }
             "Battery" -> item {
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {

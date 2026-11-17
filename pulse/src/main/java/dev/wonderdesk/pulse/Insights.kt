@@ -80,7 +80,7 @@ object Insights {
             .toList().sortedByDescending { it.second }.take(15).toMap()
         prefs(c).edit().putString("totals", JSONObject(totals).toString()).putLong("totalsDay", dayStart).apply()
         // Extra optional diagnostics, stored with the sample so weekly averages are meaningful.
-        // Never any names, file contents, locations or accounts — just free RAM/storage.
+        // Never any names, file contents, locations or accounts, only free RAM/storage.
         val memAvail = runCatching { Probe.memory(c).availMem }.getOrDefault(-1L)
         val storageFree = runCatching { Probe.storage(c).sumOf { it.third } }.getOrDefault(-1L)
         val o = JSONObject().put("at", now).put("level", level).put("charging", charging).put("temp", temp.toDouble()).put("apps", JSONObject(apps))
@@ -163,7 +163,7 @@ object Insights {
         }
     }
 
-    /** Counts only — never summaries or stack traces. Queries Control Room's provider, if installed. */
+    /** Counts only, never summaries or stack traces. Queries Control Room's provider, if installed. */
     private fun crashesSection(c: Context): String {
         val since = System.currentTimeMillis() - 7 * 86_400_000L
         return runCatching {
@@ -257,7 +257,7 @@ fun HistoryTab() {
                         subtitle = "Which Wonderdesk apps and versions are installed", icon = WonderIcons.Apps, tint = Color(0xFF8E44AD))
                     PanelDivider()
                     SwitchRow("Include crash counts", shareCrashes, { shareCrashes = it; Insights.setSharingCrashes(context, it) },
-                        subtitle = "How many crashes per app, past week — never the details", icon = WonderIcons.Error, tint = Color(0xFFE5483C))
+                        subtitle = "How many crashes per app, past week, never the details", icon = WonderIcons.Error, tint = Color(0xFFE5483C))
                 }
                 PanelDivider()
                 ListRow("What's sent", icon = WonderIcons.Info, tint = p.secondaryText, chevron = true, onClick = { showReport = true })
