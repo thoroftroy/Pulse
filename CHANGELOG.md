@@ -1,5 +1,9 @@
 # Pulse changelog
 
+## v0.5.13
+
+- New setting: keep the screen on while watching readings
+
 ## v0.5.12
 
 - New settings: how often the live readings update, and Fahrenheit for temperatures

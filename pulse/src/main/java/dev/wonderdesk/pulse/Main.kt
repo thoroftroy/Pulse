@@ -74,6 +74,8 @@ class Live {
 fun PulseApp() {
     val context = LocalContext.current
     val live = remember { Live() }
+    val hostV = androidx.compose.ui.platform.LocalView.current
+    DisposableEffect(Unit) { hostV.keepScreenOn = context.getSharedPreferences("pulse", android.content.Context.MODE_PRIVATE).getBoolean("keepAwake", false); onDispose { hostV.keepScreenOn = false } }
     val owner = androidx.compose.ui.platform.LocalLifecycleOwner.current
     var active by remember { mutableStateOf(true) }
     DisposableEffect(owner) {
@@ -109,6 +111,9 @@ fun PulseApp() {
                 Column(Modifier.padding(16.dp, 10.dp)) { Text("Update every", style = MaterialTheme.typography.labelLarge)
                     Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) { listOf(500 to "0.5 s", 1000 to "1 s", 2000 to "2 s", 5000 to "5 s").forEach { (v, n) -> Chip(n, ms == v, { ms = v; pp.edit().putInt("refreshMs", v).apply() }) } }
                     Text("Slower updates use less battery.", style = MaterialTheme.typography.bodySmall, color = wonderPalette().secondaryText) }
+                PanelDivider()
+                var kA by remember { mutableStateOf(pp.getBoolean("keepAwake", false)) }
+                SwitchRow("Keep the screen on", kA, { kA = it; pp.edit().putBoolean("keepAwake", it).apply() }, subtitle = "Handy for watching readings while a test runs", icon = WonderIcons.Visibility, tint = Color(0xFF8E44AD))
                 PanelDivider()
                 var f by remember { mutableStateOf(pp.getBoolean("fahrenheit", false)) }
                 SwitchRow("Show temperatures in Fahrenheit", f, { f = it; pp.edit().putBoolean("fahrenheit", it).apply() }, icon = WonderIcons.Speed, tint = Color(0xFFE5483C))
