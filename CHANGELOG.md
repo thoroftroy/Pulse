@@ -1,5 +1,9 @@
 # Pulse changelog
 
+## v0.5.17
+
+- Feedback has a search box for finding an app by name; scrolling the row still works
+
 ## v0.5.16
 
 - Feedback now sends straight to the developer with one tap, no GitHub account or browser needed, through the same path crash reports use

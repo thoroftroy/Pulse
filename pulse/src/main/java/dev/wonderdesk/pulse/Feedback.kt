@@ -56,6 +56,8 @@ private fun deviceDetails(c: Context): List<Pair<String, String>> {
         "Language" to java.util.Locale.getDefault().toLanguageTag(), "Storage" to st, "Processor" to (Build.SUPPORTED_ABIS.firstOrNull() ?: "unknown"))
 }
 
+private fun chosenFirst(all: List<FeedbackApp>, picked: Set<String>) = all.filter { it.pkg in picked } + all.filter { it.pkg !in picked }
+
 @Composable
 fun FeedbackTab() {
     val context = LocalContext.current
@@ -63,6 +65,7 @@ fun FeedbackTab() {
     val p = wonderPalette()
     val installed = remember { FEEDBACK_APPS.filter { versionOf(context, it.pkg) != null } }
     var picked by rememberSaveable { mutableStateOf(setOf<String>()) }
+    var search by rememberSaveable { mutableStateOf("") }
     var kind by rememberSaveable { mutableStateOf("Problem") }
     var message by rememberSaveable { mutableStateOf("") }
     var withDevice by rememberSaveable { mutableStateOf(true) }
@@ -76,10 +79,15 @@ fun FeedbackTab() {
     Column(Modifier.verticalScroll(rememberScrollState()).padding(start = 12.dp, end = 12.dp, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Panel(title = "What is it about?", footer = "Pick one app, several, or none for general feedback.") {
             Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(search, { search = it }, Modifier.fillMaxWidth(), singleLine = true, placeholder = { Text("Search apps") },
+                    leadingIcon = { androidx.compose.material3.Icon(WonderIcons.Search, null) })
+                val shown = installed.filter { search.isBlank() || it.name.contains(search.trim(), ignoreCase = true) }
                 Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Chip("General", picked.isEmpty(), { picked = emptySet() })
-                    installed.forEach { a -> Chip(a.name, a.pkg in picked, { picked = if (a.pkg in picked) picked - a.pkg else picked + a.pkg }) }
+                    if (search.isBlank()) Chip("General", picked.isEmpty(), { picked = emptySet() })
+                    // Chosen apps stay in view while searching.
+                    (chosenFirst(installed, picked).filter { it in shown || it.pkg in picked }).forEach { a -> Chip(a.name, a.pkg in picked, { picked = if (a.pkg in picked) picked - a.pkg else picked + a.pkg }) }
                 }
+                if (search.isNotBlank() && shown.isEmpty()) Text("No app called “${search.trim()}”", style = MaterialTheme.typography.bodySmall, color = p.secondaryText)
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) { listOf("Problem", "Idea", "Question").forEach { k -> Chip(k, kind == k, { kind = k }) } }
             }
         }
