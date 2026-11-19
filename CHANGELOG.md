@@ -1,5 +1,10 @@
 # Pulse changelog
 
+## v0.5.15
+
+- New Feedback tab: pick one app, several or none, choose Problem, Idea or Question, write your message and send it. The report carries the app versions and, if you leave it on, your device details; you see everything before it goes
+- Send opens the right project page on GitHub with the report filled in, or copy or share the text
+
 ## v0.5.14
 
 - New setting: how many readings the graphs keep

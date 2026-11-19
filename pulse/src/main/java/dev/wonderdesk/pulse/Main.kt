@@ -102,8 +102,8 @@ fun PulseApp() {
         if (uri != null) runCatching { context.contentResolver.openOutputStream(uri, "wt")!!.use { it.write(report(context).toByteArray()) } }.onSuccess { toastRef.value("Report saved") }
     }
     WonderApp(needs = APP_NEEDS, appName = "Pulse", about = ABOUT,
-        tabs = if (detail != null) emptyList() else listOf(WonderTab("live", "Live", WonderIcons.Speed), WonderTab("device", "Device", WonderIcons.PhoneAndroid), WonderTab("apps", "Apps", WonderIcons.Apps), WonderTab("history", "History", WonderIcons.Insights), WonderTab("tests", "Tests", WonderIcons.CheckCircle)),
-        selectedTab = tab, onTab = { tab = it }, title = detail ?: when (tab) { "device" -> "This device"; "apps" -> "Apps"; "tests" -> "Hardware tests"; "history" -> "History"; else -> "Pulse" },
+        tabs = if (detail != null) emptyList() else listOf(WonderTab("live", "Live", WonderIcons.Speed), WonderTab("device", "Device", WonderIcons.PhoneAndroid), WonderTab("apps", "Apps", WonderIcons.Apps), WonderTab("history", "History", WonderIcons.Insights), WonderTab("tests", "Tests", WonderIcons.CheckCircle), WonderTab("feedback", "Feedback", WonderIcons.Flag)),
+        selectedTab = tab, onTab = { tab = it }, title = detail ?: when (tab) { "device" -> "This device"; "apps" -> "Apps"; "tests" -> "Hardware tests"; "history" -> "History"; "feedback" -> "Send feedback"; else -> "Pulse" },
         onBack = detail?.let { { detail = null } },
         settings = {
             val pp = remember { context.getSharedPreferences("pulse", android.content.Context.MODE_PRIVATE) }
@@ -133,6 +133,7 @@ fun PulseApp() {
             tab == "apps" -> AppsTab()
             tab == "tests" -> TestsTab()
             tab == "history" -> HistoryTab()
+            tab == "feedback" -> FeedbackTab()
             else -> LiveTab(live) { detail = it }
         }
     }
