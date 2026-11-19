@@ -1,5 +1,10 @@
 # Pulse changelog
 
+## v0.5.16
+
+- Feedback now sends straight to the developer with one tap, no GitHub account or browser needed, through the same path crash reports use
+- New Public text button copies the report without your device details, with a report ID, for posting publicly
+
 ## v0.5.15
 
 - New Feedback tab: pick one app, several or none, choose Problem, Idea or Question, write your message and send it. The report carries the app versions and, if you leave it on, your device details; you see everything before it goes

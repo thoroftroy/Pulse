@@ -33,8 +33,6 @@ val FEEDBACK_APPS = listOf(
     FeedbackApp("Vault", "dev.wonderdesk.vault", "Vault"), FeedbackApp("Wayfinder", "dev.wonderdesk.wayfinder", "Wayfinder"),
 )
 
-private const val OWNER = "thoroftroy"
-private const val GENERAL_REPO = "App-Hub"
 
 private fun versionOf(c: Context, pkg: String): String? = runCatching {
     val i = c.packageManager.getPackageInfo(pkg, 0)
@@ -50,9 +48,6 @@ fun feedbackBody(kind: String, message: String, apps: List<Pair<String, String?>
     if (allVersions.isNotEmpty()) { appendLine(); appendLine("### Wonderdesk apps on this phone"); allVersions.forEach { (n, v) -> appendLine("- $n $v") } }
     if (device != null) { appendLine(); appendLine("### Device"); device.forEach { (k, v) -> appendLine("- $k: $v") } }
 }.trimEnd()
-
-fun feedbackUrl(repo: String, title: String, body: String): String =
-    "https://github.com/$OWNER/$repo/issues/new?title=" + Uri.encode(title.take(120)) + "&body=" + Uri.encode(body.take(6500))
 
 private fun deviceDetails(c: Context): List<Pair<String, String>> {
     val dm = c.resources.displayMetrics
@@ -76,7 +71,7 @@ fun FeedbackTab() {
     val body = feedbackBody(kind, message, chosen.map { it.name to versionOf(context, it.pkg) },
         if (withVersions) installed.map { it.name to versionOf(context, it.pkg)!! } else emptyList(), if (withDevice) deviceDetails(context) else null)
     val title = (if (chosen.isEmpty()) "Feedback" else chosen.joinToString(", ") { it.name }.take(60)) + ": " + message.trim().lineSequence().firstOrNull().orEmpty().take(60).ifBlank { kind }
-    val repo = if (chosen.size == 1) chosen[0].repo else GENERAL_REPO
+    val reportId = rememberSaveable { WonderReport.newId() }
 
     Column(Modifier.verticalScroll(rememberScrollState()).padding(start = 12.dp, end = 12.dp, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Panel(title = "What is it about?", footer = "Pick one app, several, or none for general feedback.") {
@@ -99,12 +94,23 @@ fun FeedbackTab() {
             Text(body, Modifier.padding(12.dp), style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace, fontSize = 11.sp), color = p.secondaryText)
         }
         Column(Modifier.padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            WButton("Send report", {
-                if (message.isBlank()) toast("Write something first") else context.launchSafely(Intent(Intent.ACTION_VIEW, Uri.parse(feedbackUrl(repo, title, body)))) { toast("No browser found") }
-            }, Modifier.fillMaxWidth(), icon = WonderIcons.OpenInNew, kind = ButtonKind.Primary)
-            Text(if (chosen.size == 1) "Opens ${chosen[0].name}'s page on GitHub with the report filled in. Press “Submit new issue” there." else "Opens the Wonderdesk page on GitHub with the report filled in. Press “Submit new issue” there.", style = MaterialTheme.typography.bodySmall, color = p.secondaryText)
+            var sending by remember { mutableStateOf(false) }
+            WButton(if (sending) "Sending…" else "Send report", {
+                if (message.isBlank()) toast("Write something first") else if (!sending) {
+                    sending = true
+                    Thread {
+                        val ok = WonderReport.post("Feedback: " + title, body + "\n\nReport ID: $reportId", if (chosen.isEmpty()) "speech_balloon" else "memo")
+                        android.os.Handler(android.os.Looper.getMainLooper()).post {
+                            sending = false
+                            if (ok) { message = ""; toast("Sent. Thank you!") } else toast("Couldn't send. Check your connection, or use Copy or Share")
+                        }
+                    }.start()
+                }
+            }, Modifier.fillMaxWidth(), icon = WonderIcons.Share, kind = ButtonKind.Primary, enabled = !sending)
+            Text("Goes straight to the Wonderdesk developer. No account needed. “Public text” copies a version without your device details, for posting on GitHub.", style = MaterialTheme.typography.bodySmall, color = p.secondaryText)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 WButton("Copy", { (context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager).setPrimaryClip(android.content.ClipData.newPlainText("Feedback", body)); toast("Copied") }, Modifier.weight(1f), icon = WonderIcons.ContentCopy)
+                WButton("Public text", { (context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager).setPrimaryClip(android.content.ClipData.newPlainText("Feedback", WonderReport.publicText(reportId, chosen.joinToString { it.name }.ifBlank { "General" }, chosen.joinToString { versionOf(context, it.pkg) ?: "?" }.ifBlank { "-" }, message))); toast("Copied without device details") }, Modifier.weight(1f), icon = WonderIcons.OpenInNew)
                 WButton("Share", { context.launchSafely(Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, body), "Share feedback")) {} }, Modifier.weight(1f), icon = WonderIcons.Share)
             }
         }
