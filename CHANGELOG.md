@@ -1,5 +1,9 @@
 # Pulse changelog
 
+## v0.5.18
+
+- Feedback can attach the recent crashes of the apps you pick (on by default, with file paths and links removed), so a crash report arrives with its details
+
 ## v0.5.17
 
 - Feedback has a search box for finding an app by name; scrolling the row still works

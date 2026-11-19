@@ -40,14 +40,30 @@ private fun versionOf(c: Context, pkg: String): String? = runCatching {
 }.getOrNull()
 
 /** The report text: what the person wrote, the apps it is about with their versions, and optional device details. Pure so it can be tested. */
-fun feedbackBody(kind: String, message: String, apps: List<Pair<String, String?>>, allVersions: List<Pair<String, String>>, device: List<Pair<String, String>>?): String = buildString {
+fun feedbackBody(kind: String, message: String, apps: List<Pair<String, String?>>, allVersions: List<Pair<String, String>>, device: List<Pair<String, String>>?, crashes: List<String> = emptyList()): String = buildString {
     appendLine("**$kind**"); appendLine()
     appendLine(message.trim().ifBlank { "(no message)" }); appendLine()
     appendLine("### About")
     if (apps.isEmpty()) appendLine("General feedback") else apps.forEach { (n, v) -> appendLine("- $n" + (v?.let { " $it" } ?: " (not installed)")) }
     if (allVersions.isNotEmpty()) { appendLine(); appendLine("### Wonderdesk apps on this phone"); allVersions.forEach { (n, v) -> appendLine("- $n $v") } }
     if (device != null) { appendLine(); appendLine("### Device"); device.forEach { (k, v) -> appendLine("- $k: $v") } }
+    if (crashes.isNotEmpty()) { appendLine(); appendLine("### Recent crashes"); crashes.forEach { appendLine(it) } }
 }.trimEnd()
+
+/** The latest crashes Control Room kept for these apps, shortened and with file paths, links and emails removed. */
+fun recentCrashes(c: Context, pkgs: Set<String>): List<String> = runCatching {
+    val out = ArrayList<String>()
+    c.contentResolver.query(WonderCrash.REPORT_URI, null, null, null, null)?.use { cur ->
+        val rows = ArrayList<List<String>>()
+        while (cur.moveToNext()) rows += listOf(cur.getString(0), cur.getString(1), cur.getString(2), cur.getString(3), cur.getString(4), cur.getString(5))
+        rows.filter { it[0] in pkgs }.sortedByDescending { it[2].toLongOrNull() ?: 0L }.take(4).forEach { r ->
+            val name = FEEDBACK_APPS.firstOrNull { it.pkg == r[0] }?.name ?: r[0]
+            val top = WonderReport.redact(r[5]).lineSequence().filter { it.isNotBlank() }.take(8).joinToString("\n    ")
+            out += "- $name ${r[3]} (${r[1]}): ${WonderReport.redact(r[4]).take(160)}\n    $top"
+        }
+    }
+    out
+}.getOrDefault(emptyList())
 
 private fun deviceDetails(c: Context): List<Pair<String, String>> {
     val dm = c.resources.displayMetrics
@@ -70,9 +86,11 @@ fun FeedbackTab() {
     var message by rememberSaveable { mutableStateOf("") }
     var withDevice by rememberSaveable { mutableStateOf(true) }
     var withVersions by rememberSaveable { mutableStateOf(true) }
+    var withCrashes by rememberSaveable { mutableStateOf(true) }
     val chosen = FEEDBACK_APPS.filter { it.pkg in picked }
     val body = feedbackBody(kind, message, chosen.map { it.name to versionOf(context, it.pkg) },
-        if (withVersions) installed.map { it.name to versionOf(context, it.pkg)!! } else emptyList(), if (withDevice) deviceDetails(context) else null)
+        if (withVersions) installed.map { it.name to versionOf(context, it.pkg)!! } else emptyList(), if (withDevice) deviceDetails(context) else null,
+        if (withCrashes && chosen.isNotEmpty()) remember(picked) { recentCrashes(context, picked) } else emptyList())
     val title = (if (chosen.isEmpty()) "Feedback" else chosen.joinToString(", ") { it.name }.take(60)) + ": " + message.trim().lineSequence().firstOrNull().orEmpty().take(60).ifBlank { kind }
     val reportId = rememberSaveable { WonderReport.newId() }
 
@@ -97,6 +115,7 @@ fun FeedbackTab() {
         Panel(title = "What is sent", footer = "Nothing else: no files, contacts or account details. You see it all below and can change it before sending.") {
             SwitchRow("Device details", withDevice, { withDevice = it }, subtitle = "Model, Android version, screen, language, storage", icon = WonderIcons.PhoneAndroid)
             PanelDivider()
+            if (chosen.isNotEmpty()) { SwitchRow("Recent crashes", withCrashes, { withCrashes = it }, subtitle = "Any crash of the apps you picked, with paths and links removed", icon = WonderIcons.Warning); PanelDivider() }
             SwitchRow("Wonderdesk app versions", withVersions, { withVersions = it }, subtitle = "Which of the suite apps are installed and their versions", icon = WonderIcons.Apps)
             PanelDivider()
             Text(body, Modifier.padding(12.dp), style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace, fontSize = 11.sp), color = p.secondaryText)
