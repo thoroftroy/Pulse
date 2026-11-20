@@ -92,7 +92,8 @@ fun FeedbackTab() {
         if (withVersions) installed.map { it.name to versionOf(context, it.pkg)!! } else emptyList(), if (withDevice) deviceDetails(context) else null,
         if (withCrashes && chosen.isNotEmpty()) remember(picked) { recentCrashes(context, picked) } else emptyList())
     val title = (if (chosen.isEmpty()) "Feedback" else chosen.joinToString(", ") { it.name }.take(60)) + ": " + message.trim().lineSequence().firstOrNull().orEmpty().take(60).ifBlank { kind }
-    val reportId = rememberSaveable { WonderReport.newId() }
+    var reportId by rememberSaveable { mutableStateOf(WonderReport.newId()) }
+    var sending by remember { mutableStateOf(false) }
 
     Column(Modifier.verticalScroll(rememberScrollState()).padding(start = 12.dp, end = 12.dp, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Panel(title = "What is it about?", footer = "Pick one app, several, or none for general feedback.") {
@@ -112,6 +113,20 @@ fun FeedbackTab() {
         Panel(title = "Your message") {
             OutlinedTextField(message, { message = it }, Modifier.fillMaxWidth().padding(12.dp).heightIn(min = 140.dp), placeholder = { Text("What happened, or what would you like?") })
         }
+        Column(Modifier.padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            WButton(if (sending) "Sending…" else "Send report", {
+                if (message.isBlank()) toast("Write something first") else if (!sending) {
+                    sending = true
+                    Thread {
+                        val ok = WonderReport.post("Feedback: " + title, body + "\n\nReport ID: $reportId", if (chosen.isEmpty()) "speech_balloon" else "memo")
+                        android.os.Handler(android.os.Looper.getMainLooper()).post {
+                            sending = false
+                            if (ok) { message = ""; search = ""; picked = emptySet(); kind = "Problem"; reportId = WonderReport.newId(); toast("Sent. Thank you!") } else toast("Couldn't send. Check your connection, or use Copy or Share")
+                        }
+                    }.start()
+                }
+            }, Modifier.fillMaxWidth(), icon = WonderIcons.Share, kind = ButtonKind.Primary, enabled = !sending)
+        }
         Panel(title = "What is sent", footer = "Nothing else: no files, contacts or account details. You see it all below and can change it before sending.") {
             SwitchRow("Device details", withDevice, { withDevice = it }, subtitle = "Model, Android version, screen, language, storage", icon = WonderIcons.PhoneAndroid)
             PanelDivider()
@@ -121,19 +136,6 @@ fun FeedbackTab() {
             Text(body, Modifier.padding(12.dp), style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace, fontSize = 11.sp), color = p.secondaryText)
         }
         Column(Modifier.padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            var sending by remember { mutableStateOf(false) }
-            WButton(if (sending) "Sending…" else "Send report", {
-                if (message.isBlank()) toast("Write something first") else if (!sending) {
-                    sending = true
-                    Thread {
-                        val ok = WonderReport.post("Feedback: " + title, body + "\n\nReport ID: $reportId", if (chosen.isEmpty()) "speech_balloon" else "memo")
-                        android.os.Handler(android.os.Looper.getMainLooper()).post {
-                            sending = false
-                            if (ok) { message = ""; toast("Sent. Thank you!") } else toast("Couldn't send. Check your connection, or use Copy or Share")
-                        }
-                    }.start()
-                }
-            }, Modifier.fillMaxWidth(), icon = WonderIcons.Share, kind = ButtonKind.Primary, enabled = !sending)
             Text("Goes straight to the Wonderdesk developer. No account needed. “Public text” copies a version without your device details, for posting on GitHub.", style = MaterialTheme.typography.bodySmall, color = p.secondaryText)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 WButton("Copy", { (context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager).setPrimaryClip(android.content.ClipData.newPlainText("Feedback", body)); toast("Copied") }, Modifier.weight(1f), icon = WonderIcons.ContentCopy)

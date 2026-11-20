@@ -1,5 +1,10 @@
 # Pulse changelog
 
+## v0.5.19
+
+- The Send report button now sits right under the message box, so there is no scrolling to find it
+- After a report is sent the app picker, search and type reset, ready for the next report
+
 ## v0.5.18
 
 - Feedback can attach the recent crashes of the apps you pick (on by default, with file paths and links removed), so a crash report arrives with its details
