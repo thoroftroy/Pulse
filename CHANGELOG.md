@@ -1,5 +1,11 @@
 # Pulse changelog
 
+## v0.6.0
+
+- Sensors explain what they measure in plain words and have interactive demos: a spirit level, light meter, hand detector, compass, spinner, magnet finder, altitude guess and step counter
+- Every app window now has the animated scene behind it, in the app's own colour (for example orange water in Abacus, green in Pulse, purple in Scribble), following your Aqua, Bliss or Super look and the real sunrise and sunset. Motion Reduced shows a still picture and Off turns it off
+- Help buttons (?) explain the more confusing settings
+
 ## v0.5.20
 
 - Fixed a gap above the keyboard in screens with a bottom tab bar: the tab bar now steps aside while you type, so you can see what you are writing

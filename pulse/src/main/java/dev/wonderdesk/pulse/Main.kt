@@ -322,7 +322,9 @@ private fun SensorsDetail() {
             item {
                 Panel(title = "Live: ${s.name}") {
                     Column(Modifier.padding(14.dp)) {
-                        Text(values.joinToString("   ") { "%.3f".format(it) }.ifBlank { "Waiting for a reading…" }, style = MaterialTheme.typography.titleMedium)
+                        Text(sensorExplanation(s), style = MaterialTheme.typography.bodyMedium, color = p.secondaryText, modifier = Modifier.padding(bottom = 8.dp))
+                        SensorDemo(s, values)
+                        Text(values.joinToString("   ") { "%.3f".format(it) }.ifBlank { "Waiting for a reading…" }, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 10.dp))
                         Chart(listOf(series to p.accent), Modifier.fillMaxWidth().height(90.dp).padding(top = 8.dp))
                     }
                 }
@@ -331,7 +333,7 @@ private fun SensorsDetail() {
         }
         item { SectionLabel("${sensors.size} sensors · tap one for live readings", Modifier.padding(start = 6.dp, bottom = 6.dp)) }
         itemsIndexed(sensors) { i, s ->
-            ListRow(s.name, Modifier.panelItem(i, sensors.size), subtitle = "${s.vendor} · range ${s.maximumRange} · ${s.power} mA", selected = s == watching, onClick = { watching = if (watching == s) null else s })
+            ListRow(s.name, Modifier.panelItem(i, sensors.size), subtitle = "${sensorExplanation(s).substringBefore(".")}. ${s.vendor} · ${s.power} mA", selected = s == watching, onClick = { watching = if (watching == s) null else s })
         }
     }
 }

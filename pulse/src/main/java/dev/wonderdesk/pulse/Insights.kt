@@ -244,10 +244,10 @@ fun HistoryTab() {
     LazyColumn(Modifier.fillMaxSize(), state = rememberTabTopList(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         item {
             Panel(title = "History", footer = "Every half hour Pulse notes the battery level, temperature, charging and which apps were on screen. It stays on this phone for two weeks, and costs almost no battery: Android runs it alongside its own work.") {
-                SwitchRow("Keep a battery and app history", collect, { collect = it; Insights.setCollecting(context, it) }, icon = WonderIcons.Insights, tint = Color(0xFF2E9E44))
+                SwitchRow("Keep a battery and app history", collect, { collect = it; Insights.setCollecting(context, it) }, icon = WonderIcons.Insights, tint = Color(0xFF2E9E44), help = "Remembers battery and app use over days so you can see trends.")
                 PanelDivider()
                 SwitchRow("Send a weekly anonymous summary to the Wonderdesk developer", share, { share = it; Insights.setSharing(context, it) }, subtitle = "Helps make the apps lighter and faster. Tap “What's sent” to read it first",
-                    icon = WonderIcons.Share, tint = Color(0xFF1E7FE8))
+                    icon = WonderIcons.Share, tint = Color(0xFF1E7FE8), help = "A short report of crashes and app versions, with no personal data, to help find bugs.")
                 if (share) {
                     PanelDivider()
                     SwitchRow("Include device details", shareDevice, { shareDevice = it; Insights.setSharingDevice(context, it) },
@@ -274,7 +274,7 @@ fun HistoryTab() {
             }
         }
         if (!collect) return@LazyColumn
-        if (!usage) item { Panel { ListRow("Per-app details need usage access", subtitle = "Turn it on under Pulse › Apps to see which apps drain the battery", icon = WonderIcons.Warning, tint = p.warning) } }
+        if (!usage) item { Panel { ListRow("Per-app details need usage access", subtitle = "Turn it on under Pulse › Apps to see which apps drain the battery", icon = WonderIcons.Warning, tint = p.warning, help = "Android only shows how much each app is used if you allow Usage access.") } }
         item {
             Panel(title = "Battery, last 48 hours") {
                 Column(Modifier.padding(12.dp)) {
