@@ -1,5 +1,10 @@
 # Pulse changelog
 
+## v0.6.1
+
+- Each app's animated scene now has its own drifting symbols (maths signs in Abacus, notes in Echo, arrows in Wayfinder and so on), and the scene is a little clearer while text stays easy to read
+- Animated backgrounds reworked after your report: they are drawn at a higher resolution and smoothly at 24 frames a second without slowing the app down, and no longer show horizontal lines
+
 ## v0.6.0
 
 - Sensors explain what they measure in plain words and have interactive demos: a spirit level, light meter, hand detector, compass, spinner, magnet finder, altitude guess and step counter
