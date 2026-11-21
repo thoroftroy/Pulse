@@ -1,5 +1,9 @@
 # Pulse changelog
 
+## v0.6.3
+
+- Cinema is no longer a separate choice in the feedback form: it is part of Memories
+
 ## v0.6.2
 
 - At night the animated background gets a stronger wash, so text stays easy to read on dark scenes

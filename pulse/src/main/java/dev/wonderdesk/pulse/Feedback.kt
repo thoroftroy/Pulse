@@ -25,8 +25,7 @@ data class FeedbackApp(val name: String, val pkg: String, val repo: String)
 
 val FEEDBACK_APPS = listOf(
     FeedbackApp("Abacus", "dev.wonderdesk.abacus", "Abacus"), FeedbackApp("App Hub", "dev.wonderdesk.apphub", "App-Hub"), FeedbackApp("Beacon", "dev.wonderdesk.beacon", "Beacon"),
-    FeedbackApp("Bliss Player", "com.blissplayer.music.debug", "BlissPlayer"), FeedbackApp("Chronicle", "dev.wonderdesk.chronicle", "Chronicle"), FeedbackApp("Cinema", "dev.wonderdesk.cinema", "Cinema"),
-    FeedbackApp("Control Room", "dev.wonderdesk.controlroom", "Control-Room"), FeedbackApp("Echo", "dev.wonderdesk.echo", "Echo"), FeedbackApp("Launcher", "dev.wonderdesk.launcher", "Wonderdesk-Launcher"),
+    FeedbackApp("Bliss Player", "com.blissplayer.music.debug", "BlissPlayer"), FeedbackApp("Chronicle", "dev.wonderdesk.chronicle", "Chronicle"), FeedbackApp("Control Room", "dev.wonderdesk.controlroom", "Control-Room"), FeedbackApp("Echo", "dev.wonderdesk.echo", "Echo"), FeedbackApp("Launcher", "dev.wonderdesk.launcher", "Wonderdesk-Launcher"),
     FeedbackApp("Memories", "dev.wonderdesk.memories", "Memories"), FeedbackApp("Packrat", "dev.wonderdesk.packrat", "Packrat"), FeedbackApp("Pages", "dev.wonderdesk.pages", "Pages"),
     FeedbackApp("Polaris", "dev.wonderdesk.polaris", "Polaris"), FeedbackApp("Pulse", "dev.wonderdesk.pulse", "Pulse"), FeedbackApp("Ripple", "dev.wonderdesk.ripple", "Ripple"),
     FeedbackApp("Safekeeper", "dev.wonderdesk.safekeeper", "Safekeeper"), FeedbackApp("Scribble", "dev.wonderdesk.scribble", "Scribble"), FeedbackApp("Timepiece", "dev.wonderdesk.timepiece", "Timepiece"),
