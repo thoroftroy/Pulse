@@ -1,5 +1,9 @@
 # Pulse changelog
 
+## v0.5.20
+
+- Fixed a gap above the keyboard in screens with a bottom tab bar: the tab bar now steps aside while you type, so you can see what you are writing
+
 ## v0.5.19
 
 - The Send report button now sits right under the message box, so there is no scrolling to find it
