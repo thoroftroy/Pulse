@@ -194,6 +194,7 @@ private fun LiveTab(live: Live, open: (String) -> Unit) {
     val bat = remember(t) { Probe.battery(context) }
     val cores = remember(t) { Probe.cores() }
     val storage = remember(t / 10) { Probe.storage(context) }
+    SceneMoodEffect(pulseMood(live.cpu.values.toList().takeLast(5).let { if (it.isEmpty()) 0f else it.average().toFloat() }, bat.tempC, bat.level, bat.status))
     Page {
         LiveCard("Processor", live.cpu.values.lastOrNull()?.let { "${it.toInt()}%" } ?: "n/a", "${cores.size} cores · ${Probe.cpuName()}", WonderIcons.DeveloperBoard, Color(0xFF1E7FE8),
             listOf(live.cpu to Color(0xFF1E7FE8)), max = 100f, onClick = { open("Processor") })
@@ -410,4 +411,22 @@ fun report(c: Context): String = buildString {
     Probe.memory(c).let { m -> sec("Memory", listOf("Total" to formatBytes(m.totalMem), "Available" to formatBytes(m.availMem))) }
     sec("Storage", Probe.storage(c).map { (n, t, f) -> n to "${formatBytes(t - f)} of ${formatBytes(t)}" })
     sec("Cameras", Probe.cameras(c)); sec("Sensors", Probe.sensors(c).map { it.name to it.vendor })
+}
+
+
+/**
+ * The scene in Live follows the phone: an easy-going green when it is idle, quicker and warmer as the processor works, red and racing
+ * under full load or when the battery is hot, a bright charging green with rising bolts while it charges, and a tired grey when the
+ * battery is nearly empty. Readings move in steps so the colour glides rather than flickers.
+ */
+internal fun pulseMood(cpu: Float, tempC: Float, level: Int, status: String): SceneMood {
+    val load = ((cpu / 100f).coerceIn(0f, 1f) * 10).toInt() / 10f
+    val hot = tempC >= 42f
+    val charging = status == "Charging" || status == "Full"
+    return when {
+        hot -> SceneMood(hue = 8f, tint = android.graphics.Color.argb(120, 235, 70, 40), energy = 2.2f, pulse = .5f, glyphs = listOf("🔥", "!", "°", "↑"))
+        level in 0..12 && !charging -> SceneMood(hue = 30f, energy = .35f, hush = .55f, glyphs = listOf("▁", "•", "z"))
+        charging && load < .5f -> SceneMood(hue = 130f, tint = android.graphics.Color.argb(70, 90, 230, 120), energy = 1.4f, glyphs = listOf("⚡", "↑", "+", "•"))
+        else -> SceneMood(hue = 130f - 125f * load, tint = android.graphics.Color.argb((load * load * 110).toInt(), 235, 90, 50), energy = .7f + 2f * load, glyphs = if (load > .6f) listOf("↑", "%", "!", "∿") else listOf("%", "∿", "↑", "↓", "•"))
+    }
 }

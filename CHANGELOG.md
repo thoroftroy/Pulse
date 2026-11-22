@@ -1,5 +1,9 @@
 # Pulse changelog
 
+## v0.7.0
+
+- The Live background follows your phone: an easy green when it is idle, warmer and faster as the processor works, red and racing under full load or when the battery is hot, a bright charging green with lightning bolts while it charges, and a tired grey when the battery is nearly empty
+
 ## v0.6.5
 
 - The symbols drifting in the background are smaller and fainter so they no longer crowd text; selected segments and chips are readable in every look (including Super); the warning banner at the top has a solid backing so its text is easy to read
