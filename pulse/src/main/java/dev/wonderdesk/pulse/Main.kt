@@ -194,7 +194,12 @@ private fun LiveTab(live: Live, open: (String) -> Unit) {
     val bat = remember(t) { Probe.battery(context) }
     val cores = remember(t) { Probe.cores() }
     val storage = remember(t / 10) { Probe.storage(context) }
-    SceneMoodEffect(pulseMood(live.cpu.values.toList().takeLast(5).let { if (it.isEmpty()) 0f else it.average().toFloat() }, bat.tempC, bat.level, bat.status))
+    SceneMoodEffect(pulseMood(live.cpu.values.toList().takeLast(5).let { if (it.isEmpty()) 0f else it.average().toFloat() }, bat.tempC, bat.level, bat.status).copy(
+        // The battery as a tide: full is high, nearly empty is a low red line.
+        level = bat.level.takeIf { it in 0..100 }?.div(100f), levelHue = bat.level.let { if (it < 20) 4f else if (it < 50) 40f else 130f }))
+    // The heartbeat follows the processor: each new reading joins the trace under it and sets how fast and high it beats.
+    SceneFeedScope()
+    LaunchedEffect(t) { live.cpu.values.lastOrNull()?.let { SceneFeed.waveOn = true; SceneFeed.push(it / 100f) } }
     Page {
         LiveCard("Processor", live.cpu.values.lastOrNull()?.let { "${it.toInt()}%" } ?: "n/a", "${cores.size} cores · ${Probe.cpuName()}", WonderIcons.DeveloperBoard, Color(0xFF1E7FE8),
             listOf(live.cpu to Color(0xFF1E7FE8)), max = 100f, onClick = { open("Processor") })
