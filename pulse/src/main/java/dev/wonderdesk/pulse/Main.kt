@@ -320,7 +320,7 @@ private fun SensorsDetail() {
         val sm = context.getSystemService(SensorManager::class.java)
         val l = object : SensorEventListener { override fun onSensorChanged(e: SensorEvent) { values = e.values.clone(); series.add(kotlin.math.sqrt(e.values.take(3).sumOf { (it * it).toDouble() }).toFloat()) }
             override fun onAccuracyChanged(s: Sensor?, a: Int) {} }
-        watching?.let { sm.registerListener(l, it, SensorManager.SENSOR_DELAY_UI) }
+        watching?.let { sm.registerListener(l, it, SensorManager.SENSOR_DELAY_GAME) }   // fast enough for the games, still light
         onDispose { sm.unregisterListener(l) }
     }
     LazyColumn(Modifier.fillMaxSize(), state = rememberTabTopList(), contentPadding = PaddingValues(16.dp)) {
@@ -330,6 +330,7 @@ private fun SensorsDetail() {
                     Column(Modifier.padding(14.dp)) {
                         Text(sensorExplanation(s), style = MaterialTheme.typography.bodyMedium, color = p.secondaryText, modifier = Modifier.padding(bottom = 8.dp))
                         SensorDemo(s, values)
+                        SensorPlay(s, values)
                         Text(values.joinToString("   ") { "%.3f".format(it) }.ifBlank { "Waiting for a reading…" }, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 10.dp))
                         Chart(listOf(series to p.accent), Modifier.fillMaxWidth().height(90.dp).padding(top = 8.dp))
                     }

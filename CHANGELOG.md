@@ -1,5 +1,17 @@
 # Pulse changelog
 
+## v0.9.0
+
+- Every sensor now has something real to do with it, under its live reading (Device › Sensors, tap one), each with a line on what everyday apps use it for:
+  - Accelerometer: a ball-rolling game. Tilt the phone to roll the ball into the hole; it counts holes and your fastest one
+  - Movement: a shake-o-meter with your best shake in g
+  - Proximity: a wave challenge, as many waves as you can in 10 seconds
+  - Magnetic field: a metal detector that finds screws and pipes in a wall, with an optional beep that speeds up as you get closer
+  - Gyroscope: a spin counter with your fastest spin
+  - Air pressure: how many metres and floors you have climbed since you started
+  - Light: whether there is enough light to read where you are
+- The spirit level's bubble now floats to the high side when you tilt the top of the phone (it went the wrong way)
+
 ## v0.8.1
 
 - The moving background holds still while Battery Saver is on, so it uses next to no power then. It still changes with what the app is doing

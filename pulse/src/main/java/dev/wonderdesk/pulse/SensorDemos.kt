@@ -55,7 +55,7 @@ fun SensorDemo(s: Sensor, values: FloatArray) {
                 Canvas(Modifier.size(150.dp)) {
                     val c = center; val r = size.minDimension / 2
                     drawCircle(p.accent.copy(alpha = .12f), r, c); drawCircle(p.accent.copy(alpha = .5f), r, c, style = Stroke(3f)); drawCircle(p.accent.copy(alpha = .3f), r * .18f, c, style = Stroke(2f))
-                    drawCircle(if (abs(ax) < .04f && abs(ay) < .04f) Color(0xFF2E9E44) else p.accent, r * .16f, Offset(c.x - ax * r * .8f, c.y + ay * r * .8f))
+                    drawCircle(if (abs(ax) < .04f && abs(ay) < .04f) Color(0xFF2E9E44) else p.accent, r * .16f, Offset(c.x - ax * r * .8f, c.y - ay * r * .8f))
                 }
                 Text(if (abs(ax) < .04f && abs(ay) < .04f) "Level" else "Tilt: ${"%.1f".format(Math.toDegrees(asin(hypot(ax, ay).coerceIn(0f, 1f)).toDouble()))}°", style = MaterialTheme.typography.titleSmall, color = p.text)
                 Text("Lay the phone flat and tilt it: the bubble moves to the high side.", style = MaterialTheme.typography.bodySmall, color = p.secondaryText)
