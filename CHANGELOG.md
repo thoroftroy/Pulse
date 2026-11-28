@@ -11,6 +11,7 @@
   - Air pressure: how many metres and floors you have climbed since you started
   - Light: whether there is enough light to read where you are
 - The spirit level's bubble now floats to the high side when you tilt the top of the phone (it went the wrong way)
+- More ? buttons: the settings that were not obvious now explain in a line or two what they do and why you might want them
 
 ## v0.8.1
 

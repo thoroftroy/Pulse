@@ -251,13 +251,13 @@ fun HistoryTab() {
                 if (share) {
                     PanelDivider()
                     SwitchRow("Include device details", shareDevice, { shareDevice = it; Insights.setSharingDevice(context, it) },
-                        subtitle = "RAM, storage, display, CPU and connection type", icon = WonderIcons.PhoneAndroid, tint = Color(0xFF34495E))
+                        subtitle = "RAM, storage, display, CPU and connection type", icon = WonderIcons.PhoneAndroid, tint = Color(0xFF34495E), help = "Adds the phone model, Android version, memory and storage to the weekly summary.")
                     PanelDivider()
                     SwitchRow("Include Wonderdesk app versions", shareVersions, { shareVersions = it; Insights.setSharingVersions(context, it) },
                         subtitle = "Which Wonderdesk apps and versions are installed", icon = WonderIcons.Apps, tint = Color(0xFF8E44AD))
                     PanelDivider()
                     SwitchRow("Include crash counts", shareCrashes, { shareCrashes = it; Insights.setSharingCrashes(context, it) },
-                        subtitle = "How many crashes per app, past week, never the details", icon = WonderIcons.Error, tint = Color(0xFFE5483C))
+                        subtitle = "How many crashes per app, past week, never the details", icon = WonderIcons.Error, tint = Color(0xFFE5483C), help = "Adds how many times each Wonderdesk app crashed this week, without any details.")
                 }
                 PanelDivider()
                 ListRow("What's sent", icon = WonderIcons.Info, tint = p.secondaryText, chevron = true, onClick = { showReport = true })
