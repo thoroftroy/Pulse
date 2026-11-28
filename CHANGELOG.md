@@ -1,5 +1,9 @@
 # Pulse changelog
 
+## v0.8.1
+
+- The moving background holds still while Battery Saver is on, so it uses next to no power then. It still changes with what the app is doing
+
 ## v0.8.0
 
 - The background heartbeat quickens and grows with the real processor load, the processor's trace runs beneath it, and the battery shows as a tide that is green when full and red when nearly empty
